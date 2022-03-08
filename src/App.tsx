@@ -1,53 +1,24 @@
-import logo from './logo.svg';
-import './App.css';
+import CreateTodo from './features/todo/CreateTodo';
+import ListTodo from './features/todo/ListTodo';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <span>
-          <span>Learn </span>
-          <a
-            className="App-link"
-            href="https://reactjs.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux-toolkit.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux Toolkit
-          </a>
-          ,<span> and </span>
-          <a
-            className="App-link"
-            href="https://react-redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React Redux
-          </a>
-        </span>
-      </header>
+    <div className="container">
+      <div className="row">
+        <div className="col px-4 py-4 text-center">
+          <h1 className="display-5 fw-bold">Todo List App</h1>
+        </div>
+      </div>
+      <div className="row my-5">
+        <div className="col">
+          <CreateTodo />
+        </div>
+      </div>
+      <div className="row my-4">
+        <div className="col">
+          <ListTodo />
+        </div>
+      </div>
     </div>
   );
 }
