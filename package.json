@@ -13,6 +13,8 @@
     "@types/react-dom": "^17.0.13",
     "@types/react-redux": "^7.1.23",
     "@types/redux-mock-store": "^1.0.3",
+    "json-server": "^0.17.0",
+    "npm-run-all": "^4.1.5",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-redux": "^7.2.6",
@@ -21,7 +23,9 @@
     "typescript": "~4.5.5"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "run-p start:*",
+    "start:client": "react-scripts start",
+    "start:server": "json-server -w db.json -r routes.json -p 4000",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -40,5 +44,6 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  }
+  },
+  "proxy": "http://localhost:4000"
 }
