@@ -13,7 +13,7 @@ describe('Todo slice', () => {
       todoSlice.getInitialState(),
       addTodo('just do it'),
     );
-    const todos = selectTodos({ [todoSlice.name]: nextState });
+    const todos = selectTodos({ [todoSlice.name]: nextState, filter: 'all' });
 
     expect(todos).toHaveLength(1);
     expect(todos[0]).toMatchObject<Todo>({
@@ -38,7 +38,7 @@ describe('Todo slice', () => {
       initialState,
       updateTodo({ id: 'a', changes: { completed: true } }),
     );
-    const todos = selectTodos({ [todoSlice.name]: nextState });
+    const todos = selectTodos({ [todoSlice.name]: nextState, filter: 'all' });
 
     expect(todos).toHaveLength(1);
     expect(todos[0]).toHaveProperty('completed', true);
@@ -61,7 +61,7 @@ describe('Todo slice', () => {
       },
     };
     const nextState = todoSlice.reducer(initialState, removeTodo('b'));
-    const todos = selectTodos({ [todoSlice.name]: nextState });
+    const todos = selectTodos({ [todoSlice.name]: nextState, filter: 'all' });
 
     expect(todos).toHaveLength(1);
     expect(todos.findIndex((todo) => todo.id === 'b')).toBe(-1);

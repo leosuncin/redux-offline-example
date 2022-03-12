@@ -9,7 +9,10 @@ import todoSlice from './todoSlice';
 
 describe('<ListTodo />', () => {
   const mockStore = configureStore<RootState>();
-  const emptyState: RootState = { todo: { ids: [], entities: {} } };
+  const emptyState: RootState = {
+    todo: { ids: [], entities: {} },
+    filter: 'all',
+  };
   const listState: RootState = {
     todo: {
       ids: ['a', 'b'],
@@ -26,6 +29,7 @@ describe('<ListTodo />', () => {
         },
       },
     },
+    filter: 'all',
   };
   const getState: MockGetState<RootState> = (actions) => {
     if (actions.length === 0) return listState;
@@ -148,7 +152,10 @@ describe('<ListTodo />', () => {
       listState.todo.entities['a']!.task,
     );
 
-    user.type(screen.getByLabelText('Change task'), '{selectall}Eat healthy food');
+    user.type(
+      screen.getByLabelText('Change task'),
+      '{selectall}Eat healthy food',
+    );
     user.click(screen.getByRole('button', { name: 'Cancel' }));
 
     expect(store.getActions()).toHaveLength(0);

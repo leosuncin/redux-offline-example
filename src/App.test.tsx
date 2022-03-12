@@ -4,6 +4,7 @@ import { Provider } from 'react-redux';
 
 import { store } from './app/store';
 import App from './App';
+import { addTodo } from './features/todo/todoSlice';
 
 describe('<App />', () => {
   it('should show an empty list', () => {
@@ -26,7 +27,7 @@ describe('<App />', () => {
     );
 
     user.type(screen.getByLabelText('Task'), 'Buy milk');
-    user.click(screen.getByRole('button'));
+    user.click(screen.getByRole('button', { name: 'Add task' }));
 
     expect(screen.getByText('Buy milk')).toBeInTheDocument();
   });
@@ -73,7 +74,36 @@ describe('<App />', () => {
     expect(screen.getByText('Buy ice cream')).toBeInTheDocument();
   });
 
+  it('should switch the filter', () => {
+    render(
+      <Provider store={store}>
+        <App />
+      </Provider>,
+    );
+
+    user.click(screen.getByLabelText('Active'));
+
+    expect(screen.getByRole('alert')).toBeVisible();
+
+    user.click(screen.getByLabelText('Completed'));
+
+    expect(screen.getAllByRole('listitem')).toHaveLength(1);
+  });
+
+  it('should clear completed', () => {
+    render(
+      <Provider store={store}>
+        <App />
+      </Provider>,
+    );
+
+    user.click(screen.getByRole('button', { name: 'Clear completed' }));
+
+    expect(screen.queryByRole('list')).not.toBeInTheDocument();
+  });
+
   it('should remove a todo', () => {
+    store.dispatch(addTodo('Buy ice cream'));
     render(
       <Provider store={store}>
         <App />

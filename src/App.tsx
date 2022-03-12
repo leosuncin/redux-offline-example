@@ -1,5 +1,8 @@
+import FilterBy from './features/filter/FilterBy';
+import ClearCompletedTodo from './features/todo/ClearCompletedTodo';
 import CreateTodo from './features/todo/CreateTodo';
 import ListTodo from './features/todo/ListTodo';
+import ShowingTodo from './features/todo/ShowingTodo';
 
 function App() {
   return (
@@ -12,6 +15,13 @@ function App() {
       <div className="row my-5">
         <div className="col">
           <CreateTodo />
+        </div>
+      </div>
+      <div className="row my-2">
+        <div className="col d-flex justify-content-between">
+          <ShowingTodo />
+          <FilterBy />
+          <ClearCompletedTodo />
         </div>
       </div>
       <div className="row my-4">
