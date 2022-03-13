@@ -12,6 +12,7 @@ describe('<ListTodo />', () => {
   const emptyState: RootState = {
     todo: { ids: [], entities: {} },
     filter: 'all',
+    paginate: { currentPage: 1, total: 0 },
   };
   const listState: RootState = {
     todo: {
@@ -30,6 +31,7 @@ describe('<ListTodo />', () => {
       },
     },
     filter: 'all',
+    paginate: { currentPage: 1, total: 0 },
   };
   const getState: MockGetState<RootState> = (actions) => {
     if (actions.length === 0) return listState;

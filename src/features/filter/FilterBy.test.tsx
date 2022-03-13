@@ -15,6 +15,7 @@ describe('<FilterBy />', () => {
         ids: [],
         entities: {},
       },
+      paginate: { currentPage: 1, total: 0 },
       [filterSlice.name]: actions.reduce(
         (state, action) => filterSlice.reducer(state, action),
         filterSlice.getInitialState(),

@@ -1,12 +1,19 @@
-import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
+import {
+  configureStore,
+  Action,
+  SerializedError,
+  ThunkAction,
+} from '@reduxjs/toolkit';
 
-import todoSlice from '../features/todo/todoSlice';
 import filterSlice from '../features/filter/filterSlice';
+import paginateSlice from '../features/paginate/paginateSlice';
+import todoSlice from '../features/todo/todoSlice';
 
 export const store = configureStore({
   reducer: {
     [todoSlice.name]: todoSlice.reducer,
     [filterSlice.name]: filterSlice.reducer,
+    [paginateSlice.name]: paginateSlice.reducer,
   },
 });
 
@@ -18,3 +25,16 @@ export type AppThunk<ReturnType = void> = ThunkAction<
   unknown,
   Action<string>
 >;
+export type AsyncThunkConfig<
+  Options extends Partial<{
+    rejectValue: unknown;
+    pendingMeta: unknown;
+    fulfilledMeta: unknown;
+    rejectedMeta: unknown;
+  }> = {},
+> = {
+  state: RootState;
+  dispatch: AppDispatch;
+  extra: unknown;
+  serializedErrorType: SerializedError;
+} & Options;

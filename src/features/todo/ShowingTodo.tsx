@@ -1,5 +1,6 @@
 import { useAppSelector } from '../../app/hooks';
-import { selectTodos, selectTotal } from './todoSlice';
+import { selectTodos } from './todoSlice';
+import { selectTotal } from '../paginate/paginateSlice';
 
 function ShowingTodo() {
   const total = useAppSelector(selectTotal);

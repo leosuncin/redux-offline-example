@@ -1,11 +1,12 @@
 import {
+  createAsyncThunk,
   createEntityAdapter,
   createSelector,
   createSlice,
   nanoid,
 } from '@reduxjs/toolkit';
 
-import type { RootState } from '../../app/store';
+import type { RootState, AsyncThunkConfig } from '../../app/store';
 import { selectFilter } from '../filter/filterSlice';
 
 export type Todo = {
@@ -19,6 +20,18 @@ const todoAdapter = createEntityAdapter<Todo>();
 const initialState = todoAdapter.getInitialState();
 
 export type TodoSliceState = typeof initialState;
+
+export const fetchAll = createAsyncThunk<
+  Todo[],
+  number | undefined,
+  AsyncThunkConfig<{ fulfilledMeta: { totalCount: number } }>
+>('todo/fetchAll', async (page = 1, { signal, fulfillWithValue }) => {
+  const response = await fetch(`/api/todos?_page=${page}`, { signal });
+  const totalCount = +response.headers.get('x-total-count')!;
+  const json = (await response.json()) as Todo[];
+
+  return fulfillWithValue(json, { totalCount });
+});
 
 export const todoSlice = createSlice({
   name: 'todo',
@@ -46,6 +59,9 @@ export const todoSlice = createSlice({
         .map(({ id }) => id);
       todoAdapter.removeMany(state, completedKeys);
     },
+  },
+  extraReducers(builder) {
+    builder.addCase(fetchAll.fulfilled, todoAdapter.setAll);
   },
 });
 
