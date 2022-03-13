@@ -1,4 +1,12 @@
-import { useEffect } from 'react';
+import {
+  addListener,
+  isFulfilled,
+  isPending,
+  isRejected,
+} from '@reduxjs/toolkit';
+import { useEffect, useRef } from 'react';
+import LoadingBar, { LoadingBarRef } from 'react-top-loading-bar';
+
 import { useAppDispatch } from './app/hooks';
 import FilterBy from './features/filter/FilterBy';
 import PaginateList from './features/paginate/PaginateList';
@@ -10,17 +18,36 @@ import { fetchAll } from './features/todo/todoSlice';
 
 function App() {
   const dispatch = useAppDispatch();
+  const loadingBar = useRef<LoadingBarRef>(null);
 
   useEffect(() => {
+    const unsubscribe = dispatch(
+      addListener({
+        matcher: isPending,
+        async effect(_, { condition }) {
+          loadingBar.current?.continuousStart(10, 1e3);
+
+          const finish = await Promise.race([
+            condition(isFulfilled),
+            condition(isRejected),
+          ]);
+          if (finish) {
+            loadingBar.current?.complete();
+          }
+        },
+      }),
+    ) as unknown as CallableFunction;
     const promise = dispatch(fetchAll());
 
     return () => {
+      unsubscribe();
       promise.abort();
     };
   }, [dispatch]);
 
   return (
     <div className="container">
+      <LoadingBar ref={loadingBar} shadow />
       <div className="row">
         <div className="col px-4 py-4 text-center">
           <h1 className="display-5 fw-bold">Todo List App</h1>
