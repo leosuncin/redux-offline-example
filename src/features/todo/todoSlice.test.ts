@@ -9,9 +9,16 @@ import todoSlice, {
 
 describe('Todo slice', () => {
   it('should add one todo', () => {
+    const dispatch = jest.fn();
+
+    addTodo('just do it')(dispatch, () => ({}), undefined);
+
+    expect(dispatch).toHaveBeenCalled();
+    const [pendingAction] = dispatch.mock.calls.flat();
+
     const nextState = todoSlice.reducer(
       todoSlice.getInitialState(),
-      addTodo('just do it'),
+      pendingAction,
     );
     const todos = selectTodos({
       [todoSlice.name]: nextState,

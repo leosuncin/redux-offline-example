@@ -40,12 +40,14 @@ describe('<App />', () => {
     );
   });
 
-  it('should add a task', () => {
+  it('should add a task', async () => {
     render(
       <Provider store={store}>
         <App />
       </Provider>,
     );
+
+    await waitForElementToBeRemoved(screen.getByRole('alert'));
 
     user.type(screen.getByLabelText('Task'), 'Buy milk');
     user.click(screen.getByRole('button', { name: 'Add task' }));
@@ -53,7 +55,7 @@ describe('<App />', () => {
     expect(screen.getByText('Buy milk')).toBeInTheDocument();
   });
 
-  it('should toggle a todo', () => {
+  it('should toggle a todo', async () => {
     render(
       <Provider store={store}>
         <App />
@@ -61,13 +63,13 @@ describe('<App />', () => {
     );
 
     expect(
-      screen.getByRole('checkbox', { name: 'Mark done' }),
+      within(screen.getAllByRole('listitem')[1]).getByRole('checkbox', { name: 'Mark done' }),
     ).not.toBeChecked();
 
-    user.click(screen.getByRole('checkbox', { name: 'Mark done' }));
+    user.click(within(screen.getAllByRole('listitem')[1]).getByRole('checkbox', { name: 'Mark done' }));
 
     expect(
-      screen.getByRole('checkbox', { name: 'Mark pending' }),
+      within(screen.getAllByRole('listitem')[1]).getByRole('checkbox', { name: 'Mark pending' }),
     ).toBeChecked();
   });
 
@@ -79,7 +81,7 @@ describe('<App />', () => {
     );
 
     user.click(
-      within(screen.getByRole('group', { name: 'Actions' })).getByRole(
+      within(screen.getAllByRole('listitem')[0]).getByRole(
         'button',
         {
           name: 'Edit',
@@ -104,13 +106,13 @@ describe('<App />', () => {
 
     user.click(screen.getByLabelText('Active'));
 
-    expect(screen.getByRole('alert')).toBeVisible();
+    expect(within(screen.getByTestId('list-todo')).getAllByRole('listitem')).toHaveLength(1);
 
     user.click(screen.getByLabelText('Completed'));
 
     expect(
       within(screen.getByTestId('list-todo')).getAllByRole('listitem'),
-    ).toHaveLength(1);
+    ).toHaveLength(2);
   });
 
   it('should clear completed', () => {

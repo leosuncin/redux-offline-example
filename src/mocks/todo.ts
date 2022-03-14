@@ -26,4 +26,20 @@ export const listTodoHandler = rest.get<Todo[]>(
   },
 );
 
-export default [listTodoHandler];
+export const createTodoHandler = rest.post<Todo, {}, Todo>(
+  '/api/todos',
+  (request, response, context) => {
+    const todo = request.body;
+    todos.push(todo)
+
+    return response(
+      context.delay(),
+      context.status(201),
+      context.json(todo),
+    );
+  },
+);
+
+const handlers = [listTodoHandler, createTodoHandler];
+
+export default handlers

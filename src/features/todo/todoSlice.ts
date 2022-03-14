@@ -3,11 +3,18 @@ import {
   createEntityAdapter,
   createSelector,
   createSlice,
-  nanoid,
 } from '@reduxjs/toolkit';
 
-import type { RootState, AsyncThunkConfig } from '../../app/store';
+import type { AsyncThunkConfig, RootState } from '../../app/store';
 import { selectFilter } from '../filter/filterSlice';
+import * as todoApi from './todoApi';
+
+// HACK Remove after upgrade to Typescript 4.6
+declare global {
+  interface Crypto {
+    randomUUID: () => string;
+  }
+}
 
 export type Todo = {
   id: string;
@@ -25,30 +32,18 @@ export const fetchAll = createAsyncThunk<
   Todo[],
   number | undefined,
   AsyncThunkConfig<{ fulfilledMeta: { totalCount: number } }>
->('todo/fetchAll', async (page = 1, { signal, fulfillWithValue }) => {
-  const response = await fetch(`/api/todos?_page=${page}`, { signal });
-  const totalCount = +response.headers.get('x-total-count')!;
-  const json = (await response.json()) as Todo[];
+>('todo/fetchAll', todoApi.getAll);
 
-  return fulfillWithValue(json, { totalCount });
+export const addTodo = createAsyncThunk('todo/addTodo', todoApi.createOne, {
+  idGenerator() {
+    return crypto.randomUUID();
+  },
 });
 
 export const todoSlice = createSlice({
   name: 'todo',
   initialState,
   reducers: {
-    addTodo: {
-      prepare(task: string) {
-        return {
-          payload: {
-            id: nanoid(),
-            task,
-            completed: false,
-          },
-        };
-      },
-      reducer: todoAdapter.addOne,
-    },
     updateTodo: todoAdapter.updateOne,
     removeTodo: todoAdapter.removeOne,
     clearCompleted(state) {
@@ -62,6 +57,22 @@ export const todoSlice = createSlice({
   },
   extraReducers(builder) {
     builder.addCase(fetchAll.fulfilled, todoAdapter.setAll);
+
+    builder
+      .addCase(addTodo.pending, (state, action) => {
+        todoAdapter.addOne(state, {
+          id: action.meta.requestId,
+          task: action.meta.arg,
+          completed: false,
+        });
+      })
+      .addCase(addTodo.fulfilled, todoAdapter.setOne);
+
+    builder
+      .addCase(updateTodo.pending, (state, action) => {
+        todoAdapter.updateOne(state, action.meta.arg);
+      })
+      .addCase(updateTodo.fulfilled, todoAdapter.setOne);
   },
 });
 
@@ -92,7 +103,6 @@ export const selectCountCompleted = (state: RootState): number =>
 
 export const { selectTotal } = todoSelectors;
 
-export const { addTodo, clearCompleted, removeTodo, updateTodo } =
-  todoSlice.actions;
+export const { clearCompleted, removeTodo } = todoSlice.actions;
 
 export default todoSlice;
