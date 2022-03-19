@@ -81,7 +81,12 @@ describe('Todo slice', () => {
         },
       },
     };
-    const nextState = todoSlice.reducer(initialState, removeTodo('b'));
+    const dispatch = jest.fn();
+
+    removeTodo('b')(dispatch, () => ({}), undefined);
+    const [pendingAction] = dispatch.mock.calls.flat();
+
+    const nextState = todoSlice.reducer(initialState, pendingAction);
     const todos = selectTodos({
       [todoSlice.name]: nextState,
       filter: 'all',

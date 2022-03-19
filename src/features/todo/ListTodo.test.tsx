@@ -189,8 +189,6 @@ describe('<ListTodo />', () => {
     );
 
     expect(store.getActions()).toHaveLength(1);
-    expect(store.getActions()[0]).toHaveProperty('type', 'todo/removeTodo');
-    expect(store.getActions()[0]).toHaveProperty('payload', 'b');
     expect(screen.queryByTestId('todo-b')).not.toBeInTheDocument();
   });
 });

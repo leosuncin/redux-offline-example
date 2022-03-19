@@ -51,3 +51,11 @@ export const updateOne: AsyncThunkPayloadCreator<
 
   return response.json();
 };
+
+export const removeOne: AsyncThunkPayloadCreator<
+  void,
+  Todo['id'],
+  AsyncThunkConfig
+> = async (id) => {
+  await fetch(`/api/todos/${id}`, { method: 'DELETE' });
+};

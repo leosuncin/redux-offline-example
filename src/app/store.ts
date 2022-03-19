@@ -9,10 +9,29 @@ import {
 } from '@reduxjs/toolkit';
 
 import filterSlice from '../features/filter/filterSlice';
-import paginateSlice from '../features/paginate/paginateSlice';
-import todoSlice from '../features/todo/todoSlice';
+import paginateSlice, {
+  selectCurrentPage,
+  selectPages,
+} from '../features/paginate/paginateSlice';
+import todoSlice, { fetchAll, removeTodo } from '../features/todo/todoSlice';
 
-const listener = createListenerMiddleware();
+const listener = createListenerMiddleware<RootState>();
+
+listener.startListening({
+  actionCreator: removeTodo.fulfilled,
+  effect(_, { dispatch, getState }) {
+    const currentPage = selectCurrentPage(getState());
+    const pages = selectPages(getState());
+
+    if (currentPage > pages) {
+      // If the last page is empty, fetch the previous one
+      (dispatch as AppDispatch)(fetchAll(currentPage - 1));
+    } else if (currentPage < pages) {
+      // If there are more todos, refetch current page
+      (dispatch as AppDispatch)(fetchAll(currentPage));
+    }
+  },
+});
 
 export function makeStore(preloadedState?: Partial<PreloadedState<RootState>>) {
   return configureStore({

@@ -1,7 +1,7 @@
 import { createSlice, Selector } from '@reduxjs/toolkit';
 import { RootState } from '../../app/store';
 
-import { fetchAll } from '../todo/todoSlice';
+import { fetchAll, removeTodo } from '../todo/todoSlice';
 
 const initialState = {
   total: 0,
@@ -16,6 +16,10 @@ const paginateSlice = createSlice({
     builder.addCase(fetchAll.fulfilled, (state, action) => {
       state.total = action.meta.totalCount;
       state.currentPage = action.meta.arg ?? 1;
+    });
+
+    builder.addCase(removeTodo.fulfilled, (state) => {
+      state.total -= 1;
     });
   },
 });

@@ -45,11 +45,15 @@ export const updateTodo = createAsyncThunk(
   todoApi.updateOne,
 );
 
+export const removeTodo = createAsyncThunk(
+  'todo/removeTodo',
+  todoApi.removeOne,
+);
+
 export const todoSlice = createSlice({
   name: 'todo',
   initialState,
   reducers: {
-    removeTodo: todoAdapter.removeOne,
     clearCompleted(state) {
       const completedKeys = todoAdapter
         .getSelectors()
@@ -77,6 +81,10 @@ export const todoSlice = createSlice({
         todoAdapter.updateOne(state, action.meta.arg);
       })
       .addCase(updateTodo.fulfilled, todoAdapter.setOne);
+
+    builder.addCase(removeTodo.pending, (state, action) => {
+      todoAdapter.removeOne(state, action.meta.arg);
+    });
   },
 });
 
@@ -107,6 +115,6 @@ export const selectCountCompleted = (state: RootState): number =>
 
 export const { selectTotal } = todoSelectors;
 
-export const { clearCompleted, removeTodo } = todoSlice.actions;
+export const { clearCompleted } = todoSlice.actions;
 
 export default todoSlice;

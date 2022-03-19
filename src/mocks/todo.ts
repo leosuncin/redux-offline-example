@@ -63,6 +63,22 @@ export const updateTodoHandler = rest.put<Todo, { id: string }, Partial<Todo>>(
   },
 );
 
-const handlers = [listTodoHandler, createTodoHandler, updateTodoHandler];
+export const removeTodoHandler = rest.delete<undefined, { id: string }>(
+  '/api/todos/:id',
+  (request, response, context) => {
+    const { id } = request.params;
+
+    state = todoAdapter.removeOne(state, id);
+
+    return response(context.delay());
+  },
+);
+
+const handlers = [
+  listTodoHandler,
+  createTodoHandler,
+  updateTodoHandler,
+  removeTodoHandler,
+];
 
 export default handlers;
