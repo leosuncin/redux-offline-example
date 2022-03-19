@@ -22,7 +22,7 @@ export type Todo = {
   completed: boolean;
 };
 
-const todoAdapter = createEntityAdapter<Todo>();
+export const todoAdapter = createEntityAdapter<Todo>();
 
 const initialState = todoAdapter.getInitialState();
 
@@ -40,11 +40,15 @@ export const addTodo = createAsyncThunk('todo/addTodo', todoApi.createOne, {
   },
 });
 
+export const updateTodo = createAsyncThunk(
+  'todo/updateTodo',
+  todoApi.updateOne,
+);
+
 export const todoSlice = createSlice({
   name: 'todo',
   initialState,
   reducers: {
-    updateTodo: todoAdapter.updateOne,
     removeTodo: todoAdapter.removeOne,
     clearCompleted(state) {
       const completedKeys = todoAdapter

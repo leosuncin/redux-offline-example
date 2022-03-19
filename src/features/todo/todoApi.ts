@@ -1,4 +1,4 @@
-import type { AsyncThunkPayloadCreator } from '@reduxjs/toolkit';
+import type { AsyncThunkPayloadCreator, Update } from '@reduxjs/toolkit';
 
 import type { AsyncThunkConfig } from '../../app/store';
 import type { Todo } from './todoSlice';
@@ -30,6 +30,23 @@ export const createOne: AsyncThunkPayloadCreator<
       task,
       completed: false,
     }),
+  });
+
+  return response.json();
+};
+
+export const updateOne: AsyncThunkPayloadCreator<
+  Todo,
+  Update<Todo>,
+  AsyncThunkConfig
+> = async ({ changes, id }, { getState }) => {
+  const todo = getState().todo.entities[id]!;
+  const response = await fetch(`/api/todos/${id}`, {
+    method: 'PUT',
+    headers: {
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({ ...todo, ...changes, id: undefined }),
   });
 
   return response.json();

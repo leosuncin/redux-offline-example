@@ -9,7 +9,7 @@ import user from '@testing-library/user-event';
 import { setupServer } from 'msw/node';
 import { Provider } from 'react-redux';
 
-import { store } from './app/store';
+import { makeStore } from './app/store';
 import App from './App';
 import todoHandlers from './mocks/todo';
 
@@ -29,6 +29,8 @@ describe('<App />', () => {
   });
 
   it('should show an empty list', () => {
+    const store = makeStore();
+
     render(
       <Provider store={store}>
         <App />
@@ -41,13 +43,15 @@ describe('<App />', () => {
   });
 
   it('should add a task', async () => {
+    const store = makeStore();
+
     render(
       <Provider store={store}>
         <App />
       </Provider>,
     );
 
-    await waitForElementToBeRemoved(screen.getByRole('alert'));
+    await waitForElementToBeRemoved(screen.queryByRole('alert'));
 
     user.type(screen.getByLabelText('Task'), 'Buy milk');
     user.click(screen.getByRole('button', { name: 'Add task' }));
@@ -56,37 +60,50 @@ describe('<App />', () => {
   });
 
   it('should toggle a todo', async () => {
+    const store = makeStore();
+
     render(
       <Provider store={store}>
         <App />
       </Provider>,
     );
 
+    await waitForElementToBeRemoved(screen.queryByRole('alert'));
+
     expect(
-      within(screen.getAllByRole('listitem')[1]).getByRole('checkbox', { name: 'Mark done' }),
+      within(screen.getAllByRole('listitem')[1]).getByRole('checkbox', {
+        name: 'Mark done',
+      }),
     ).not.toBeChecked();
 
-    user.click(within(screen.getAllByRole('listitem')[1]).getByRole('checkbox', { name: 'Mark done' }));
+    user.click(
+      within(screen.getAllByRole('listitem')[1]).getByRole('checkbox', {
+        name: 'Mark done',
+      }),
+    );
 
     expect(
-      within(screen.getAllByRole('listitem')[1]).getByRole('checkbox', { name: 'Mark pending' }),
+      within(screen.getAllByRole('listitem')[1]).getByRole('checkbox', {
+        name: 'Mark pending',
+      }),
     ).toBeChecked();
   });
 
-  it('should edit a todo', () => {
+  it('should edit a todo', async () => {
+    const store = makeStore();
+
     render(
       <Provider store={store}>
         <App />
       </Provider>,
     );
 
+    await waitForElementToBeRemoved(screen.queryByRole('alert'));
+
     user.click(
-      within(screen.getAllByRole('listitem')[0]).getByRole(
-        'button',
-        {
-          name: 'Edit',
-        },
-      ),
+      within(screen.getAllByRole('listitem')[0]).getByRole('button', {
+        name: 'Edit',
+      }),
     );
 
     user.type(
@@ -97,30 +114,40 @@ describe('<App />', () => {
     expect(screen.getByText('Buy ice cream')).toBeInTheDocument();
   });
 
-  it('should switch the filter', () => {
+  it('should switch the filter', async () => {
+    const store = makeStore();
+
     render(
       <Provider store={store}>
         <App />
       </Provider>,
     );
 
+    await waitForElementToBeRemoved(screen.queryByRole('alert'));
+
     user.click(screen.getByLabelText('Active'));
 
-    expect(within(screen.getByTestId('list-todo')).getAllByRole('listitem')).toHaveLength(1);
+    expect(
+      within(screen.getByTestId('list-todo')).getAllByRole('listitem'),
+    ).toHaveLength(2);
 
     user.click(screen.getByLabelText('Completed'));
 
     expect(
       within(screen.getByTestId('list-todo')).getAllByRole('listitem'),
-    ).toHaveLength(2);
+    ).toHaveLength(3);
   });
 
-  it('should clear completed', () => {
+  it('should clear completed', async () => {
+    const store = makeStore({ filter: 'completed' });
+
     render(
       <Provider store={store}>
         <App />
       </Provider>,
     );
+
+    await waitForElementToBeRemoved(screen.queryByRole('alert'));
 
     user.click(screen.getByRole('button', { name: 'Clear completed' }));
 
@@ -128,29 +155,33 @@ describe('<App />', () => {
   });
 
   it('should remove a todo', async () => {
+    const store = makeStore({ filter: 'completed' });
+
     render(
       <Provider store={store}>
         <App />
       </Provider>,
     );
 
-    await waitForElementToBeRemoved(screen.getByRole('alert'));
-
-    expect(screen.queryByText('Just do it')).toBeInTheDocument();
+    await expect(
+      screen.findByText('Speak at an industry conference or event'),
+    ).resolves.toBeInTheDocument();
 
     user.click(
-      within(screen.getByRole('group', { name: 'Actions' })).getByRole(
-        'button',
-        {
-          name: 'Remove',
-        },
-      ),
+      within(
+        screen.getByText('Speak at an industry conference or event')
+          .parentElement!,
+      ).getByRole('button', {
+        name: 'Remove',
+      }),
     );
 
     expect(screen.queryByText('Just do it')).not.toBeInTheDocument();
   });
 
   it('should paginate the list', async () => {
+    const store = makeStore();
+
     render(
       <Provider store={store}>
         <App />

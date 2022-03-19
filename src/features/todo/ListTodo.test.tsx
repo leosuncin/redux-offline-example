@@ -1,3 +1,4 @@
+import { getDefaultMiddleware } from '@reduxjs/toolkit';
 import { render, screen, within } from '@testing-library/react';
 import user from '@testing-library/user-event';
 import { Provider } from 'react-redux';
@@ -8,7 +9,7 @@ import ListTodo from './ListTodo';
 import todoSlice from './todoSlice';
 
 describe('<ListTodo />', () => {
-  const mockStore = configureStore<RootState>();
+  const mockStore = configureStore<RootState>(getDefaultMiddleware());
   const emptyState: RootState = {
     todo: { ids: [], entities: {} },
     filter: 'all',
@@ -90,8 +91,6 @@ describe('<ListTodo />', () => {
     user.click(within(screen.getByTestId('todo-a')).getByRole('checkbox'));
 
     expect(store.getActions()).toHaveLength(1);
-    expect(store.getActions()[0]).toHaveProperty('type', 'todo/updateTodo');
-    expect(store.getActions()[0]).toHaveProperty('payload.changes.completed');
     expect(
       within(screen.getByTestId('todo-a')).getByRole('checkbox'),
     ).toBeChecked();
@@ -124,11 +123,6 @@ describe('<ListTodo />', () => {
     );
 
     expect(store.getActions()).toHaveLength(1);
-    expect(store.getActions()[0]).toHaveProperty('type', 'todo/updateTodo');
-    expect(store.getActions()[0]).toHaveProperty(
-      'payload.changes.task',
-      'Eat healthy food',
-    );
     expect(screen.getByText('Eat healthy food')).toBeInTheDocument();
     expect(screen.queryByLabelText('Change task')).not.toBeInTheDocument();
   });

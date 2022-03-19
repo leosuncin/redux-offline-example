@@ -45,10 +45,16 @@ describe('Todo slice', () => {
         },
       },
     };
-    const nextState = todoSlice.reducer(
-      initialState,
-      updateTodo({ id: 'a', changes: { completed: true } }),
+    const dispatch = jest.fn();
+
+    updateTodo({ id: 'a', changes: { completed: true } })(
+      dispatch,
+      () => ({ [todoSlice.name]: initialState }),
+      undefined,
     );
+    const [pendingAction] = dispatch.mock.calls.flat();
+
+    const nextState = todoSlice.reducer(initialState, pendingAction);
     const todos = selectTodos({
       [todoSlice.name]: nextState,
       filter: 'all',

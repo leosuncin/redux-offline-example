@@ -5,6 +5,7 @@ import {
   ThunkAction,
   createListenerMiddleware,
   addListener,
+  PreloadedState,
 } from '@reduxjs/toolkit';
 
 import filterSlice from '../features/filter/filterSlice';
@@ -13,22 +14,31 @@ import todoSlice from '../features/todo/todoSlice';
 
 const listener = createListenerMiddleware();
 
-export const store = configureStore({
-  reducer: {
-    [todoSlice.name]: todoSlice.reducer,
-    [filterSlice.name]: filterSlice.reducer,
-    [paginateSlice.name]: paginateSlice.reducer,
-  },
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware({
-      serializableCheck: {
-        ignoredActions: [addListener.type],
-      },
-    }).concat(listener.middleware),
-});
+export function makeStore(preloadedState?: Partial<PreloadedState<RootState>>) {
+  return configureStore({
+    reducer: {
+      [todoSlice.name]: todoSlice.reducer,
+      [filterSlice.name]: filterSlice.reducer,
+      [paginateSlice.name]: paginateSlice.reducer,
+    },
+    middleware: (getDefaultMiddleware) =>
+      getDefaultMiddleware({
+        serializableCheck: {
+          ignoredActions: [addListener.type],
+        },
+      }).concat(listener.middleware),
+    preloadedState,
+  });
+}
+
+export const store = makeStore();
 
 export type AppDispatch = typeof store.dispatch;
-export type RootState = ReturnType<typeof store.getState>;
+export type RootState = {
+  [todoSlice.name]: ReturnType<typeof todoSlice.reducer>;
+  [filterSlice.name]: ReturnType<typeof filterSlice.reducer>;
+  [paginateSlice.name]: ReturnType<typeof paginateSlice.reducer>;
+};
 export type AppThunk<ReturnType = void> = ThunkAction<
   ReturnType,
   RootState,
