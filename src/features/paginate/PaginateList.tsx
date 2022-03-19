@@ -16,6 +16,8 @@ function PaginateList() {
     };
   }
 
+  if (pages < 2) return null;
+
   return (
     <nav aria-label="Todos navigation">
       <ul className="pagination justify-content-center mt-2">
