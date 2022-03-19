@@ -5,7 +5,7 @@ import {
   createSlice,
 } from '@reduxjs/toolkit';
 
-import type { AsyncThunkConfig, RootState } from '../../app/store';
+import type { AppThunk, AsyncThunkConfig, RootState } from '../../app/store';
 import { selectFilter } from '../filter/filterSlice';
 import * as todoApi from './todoApi';
 
@@ -115,6 +115,12 @@ export const selectCountCompleted = (state: RootState): number =>
 
 export const { selectTotal } = todoSelectors;
 
-export const { clearCompleted } = todoSlice.actions;
-
+export const clearCompleted =
+  (): AppThunk<Promise<unknown>> => (dispatch, getState) =>
+    Promise.allSettled(
+      todoSelectors
+        .selectAll(getState())
+        .filter(({ completed }) => completed)
+        .map(({ id }) => dispatch(removeTodo(id))),
+    );
 export default todoSlice;

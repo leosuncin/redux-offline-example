@@ -155,7 +155,7 @@ describe('<App />', () => {
   });
 
   it('should remove a todo', async () => {
-    const store = makeStore({ filter: 'completed' });
+    const store = makeStore({ filter: 'active' });
 
     render(
       <Provider store={store}>
@@ -164,12 +164,12 @@ describe('<App />', () => {
     );
 
     await expect(
-      screen.findByText('Speak at an industry conference or event'),
+      screen.findByText('Establish a healthy work-life balance'),
     ).resolves.toBeInTheDocument();
 
     user.click(
       within(
-        screen.getByText('Speak at an industry conference or event')
+        screen.getByText('Establish a healthy work-life balance')
           .parentElement!,
       ).getByRole('button', {
         name: 'Remove',
