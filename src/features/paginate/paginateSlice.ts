@@ -14,7 +14,7 @@ const paginateSlice = createSlice({
   reducers: {},
   extraReducers(builder) {
     builder.addCase(fetchAll.fulfilled, (state, action) => {
-      state.total = action.meta.totalCount;
+      state.total = action.meta.totalCount || action.payload.length;
       state.currentPage = action.meta.arg ?? 1;
     });
 
