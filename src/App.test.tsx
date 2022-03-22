@@ -169,8 +169,7 @@ describe('<App />', () => {
 
     user.click(
       within(
-        screen.getByText('Establish a healthy work-life balance')
-          .parentElement!,
+        screen.getByTestId('todo-9ceec59a-f95c-4017-9de7-507e11034414'),
       ).getByRole('button', {
         name: 'Remove',
       }),
@@ -188,7 +187,7 @@ describe('<App />', () => {
       </Provider>,
     );
 
-    await waitForElementToBeRemoved(screen.getByRole('alert'));
+    await waitForElementToBeRemoved(screen.queryByRole('alert'));
 
     user.click(
       within(screen.getByRole('navigation')).getByRole('button', { name: '2' }),
