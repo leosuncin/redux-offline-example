@@ -19,3 +19,18 @@ jobs:
         run: npx tsc --noEmit --noErrorTruncation --pretty false --incremental false
       - name: Run eslint
         run: npx eslint .
+  unit-test:
+    name: Run unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install dependencies
+        uses: bahmutov/npm-install@v1
+      - name: Run tests
+        run: npm test -- --coverage
+      - name: Upload code coverage
+        uses: actions/upload-artifact@v3
+        with:
+          name: code-coverage
+          path: coverage
