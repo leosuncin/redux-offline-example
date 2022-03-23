@@ -1,14 +1,28 @@
+import { faker } from '@faker-js/faker';
 import { expect, test } from '@playwright/test';
+
+import type { Todo } from '../../src/features/todo/todoSlice';
 
 test.describe('list and paginate', () => {
   let countTotal: number;
 
   test.beforeEach(async ({ page }) => {
     await page.route('**/api/todos**', async (route) => {
-      const response = await page.request.fetch(route.request());
-      countTotal = Number(response.headers()['x-total-count']) || 10;
+      const todos: Todo[] = Array.from({ length: 10 }, (_, index) => ({
+        id: faker.datatype.uuid(),
+        task: `${String(index + 1).padStart(2, '0')} ${faker.lorem.sentence()}`,
+        completed: faker.datatype.boolean(),
+      }));
+      countTotal = faker.datatype.number({ min: 42, max: 104 });
 
-      return route.fulfill({ response });
+      return route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(todos),
+        headers: {
+          'x-total-count': countTotal.toString(),
+        },
+      });
     });
 
     await page.goto('/', { waitUntil: 'networkidle' });

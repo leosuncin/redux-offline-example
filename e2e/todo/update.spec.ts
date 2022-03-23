@@ -2,31 +2,43 @@ import { faker } from '@faker-js/faker';
 import { expect, test } from '@playwright/test';
 
 import type { Todo } from '../../src/features/todo/todoSlice';
+let list: Todo[] = Array.from({ length: 7 }, () => ({
+  id: faker.datatype.uuid(),
+  task: faker.lorem.sentence(),
+  completed: false,
+}));
+let todo = faker.random.arrayElement(list);
 
 test.describe('update a todo', () => {
-  let todo: Todo;
+  test.beforeEach(async ({ page }) => {
+    await page.route('**/api/todos?**', (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(list),
+      }),
+    );
 
-  test.beforeEach(async ({ page, request }) => {
-    const response = await request.post('/api/todos', {
-      data: {
-        id: faker.datatype.uuid(),
-        task: faker.company.catchPhrase(),
-        completed: false,
-      },
+    await page.route('**/api/todos/**', (route) => {
+      list = list.map((item) => {
+        if (item.id !== todo.id) return todo;
+
+        todo = {
+          ...item,
+          ...route.request().postDataJSON(),
+        };
+
+        return todo;
+      });
+
+      return route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(todo),
+      });
     });
-    todo = await response.json();
 
     await page.goto('/', { waitUntil: 'networkidle' });
-
-    await page
-      .locator('[aria-label="Todos navigation"] li:nth-last-child(2)')
-      .click();
-
-    await page.waitForLoadState('networkidle');
-  });
-
-  test.afterEach(async ({ request }) => {
-    await request.delete(`/api/todos/${todo.id}`, { failOnStatusCode: false });
   });
 
   test('mark as complete', async ({ page }) => {

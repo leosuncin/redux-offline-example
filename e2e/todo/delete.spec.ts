@@ -3,18 +3,48 @@ import { expect, test } from '@playwright/test';
 
 import type { Todo } from '../../src/features/todo/todoSlice';
 
+let db: Todo[] = Array.from({ length: 34 }, (_, index) => ({
+  id: faker.datatype.uuid(),
+  task: `${String(index + 1).padStart(2, '0')} ${faker.lorem.sentence()}`,
+  completed: faker.datatype.boolean(),
+}));
+
 test.describe('delete a todo', () => {
   let todo: Todo;
 
-  test.beforeEach(async ({ page, request }) => {
-    const response = await request.post('/api/todos', {
-      data: {
-        id: faker.datatype.uuid(),
-        task: faker.company.catchPhrase(),
-        completed: false,
-      },
+  test.beforeEach(async ({ page }) => {
+    await page.route('**/api/todos?**', (route) => {
+      const url = new URL(route.request().url());
+      const page = Number.parseInt(url.searchParams.get('_page')) || 1;
+      const limit = 10;
+      const todos = db.slice(limit * (page - 1), limit * page);
+      todo = faker.random.arrayElement(todos);
+
+      return route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(todos),
+        headers: {
+          'x-total-count': String(db.length),
+        },
+      });
     });
-    todo = await response.json();
+
+    await page.route('**/api/todos/**', (route) => {
+      const result =
+        /\/api\/todos\/(?<id>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/.exec(
+          route.request().url(),
+        );
+      const { id } = result.groups;
+
+      db = db.filter((todo) => todo.id !== id);
+
+      return route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: '{}',
+      });
+    });
 
     await page.goto('/', { waitUntil: 'networkidle' });
 
@@ -40,7 +70,7 @@ test.describe('delete a todo', () => {
     );
     const $list = await page.locator('[data-testid="list-todo"] li');
 
-    while ((await $list.count()) > 0) {
+    for (let i = 0; i < 4; i++) {
       await $list.last().locator('text=Remove').click();
     }
 
