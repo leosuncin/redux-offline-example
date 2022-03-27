@@ -79,6 +79,28 @@ registerRoute(
   new NetworkOnly({
     plugins: [bgSyncPlugin],
   }),
+  'GET',
+);
+registerRoute(
+  /\/api\/todos$/,
+  new NetworkOnly({
+    plugins: [bgSyncPlugin],
+  }),
+  'POST',
+);
+registerRoute(
+  /\/api\/todos\/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/,
+  new NetworkOnly({
+    plugins: [bgSyncPlugin],
+  }),
+  'PUT',
+);
+registerRoute(
+  /\/api\/todos\/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/,
+  new NetworkOnly({
+    plugins: [bgSyncPlugin],
+  }),
+  'DELETE',
 );
 // This allows the web app to trigger skipWaiting via
 // registration.waiting.postMessage({type: 'SKIP_WAITING'})
