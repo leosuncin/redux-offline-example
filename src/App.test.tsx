@@ -22,6 +22,7 @@ describe('<App />', () => {
 
   beforeEach(() => {
     server.resetHandlers();
+    localStorage.clear();
   });
 
   afterAll(() => {
