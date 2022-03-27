@@ -1,11 +1,14 @@
+import { offline } from '@redux-offline/redux-offline';
+import offlineConfig from '@redux-offline/redux-offline/lib/defaults';
 import {
-  configureStore,
-  Action,
-  SerializedError,
-  ThunkAction,
-  createListenerMiddleware,
   addListener,
+  configureStore,
+  createListenerMiddleware,
+  Action,
   PreloadedState,
+  SerializedError,
+  StoreEnhancer,
+  ThunkAction,
 } from '@reduxjs/toolkit';
 
 import filterSlice from '../features/filter/filterSlice';
@@ -47,6 +50,7 @@ export function makeStore(preloadedState?: Partial<PreloadedState<RootState>>) {
         },
       }).concat(listener.middleware),
     preloadedState,
+    enhancers: [offline(offlineConfig) as StoreEnhancer],
   });
 }
 

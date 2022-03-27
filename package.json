@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@faker-js/faker": "^6.0.0",
+    "@redux-offline/redux-offline": "^2.6.0",
     "@reduxjs/toolkit": "^1.8.0",
     "@testing-library/jest-dom": "^5.16.2",
     "@testing-library/react": "^12.1.3",
