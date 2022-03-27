@@ -1,18 +1,14 @@
 import { faker } from '@faker-js/faker';
 import { expect, test } from '@playwright/test';
 
-import type { Todo } from '../../src/features/todo/todoSlice';
+import db from '../../db.json';
 
 test.describe('list and paginate', () => {
   let countTotal: number;
 
   test.beforeEach(async ({ page }) => {
-    await page.route('**/api/todos**', async (route) => {
-      const todos: Todo[] = Array.from({ length: 10 }, (_, index) => ({
-        id: faker.datatype.uuid(),
-        task: `${String(index + 1).padStart(2, '0')} ${faker.lorem.sentence()}`,
-        completed: faker.datatype.boolean(),
-      }));
+    await page.route('**/api/todos?**', async (route) => {
+      const todos = faker.random.arrayElements(db.todos, 10);
       countTotal = faker.datatype.number({ min: 42, max: 104 });
 
       return route.fulfill({

@@ -1,12 +1,12 @@
 import { faker } from '@faker-js/faker';
 import { expect, test } from '@playwright/test';
 
-import type { Todo } from '../../src/features/todo/todoSlice';
-let list: Todo[] = Array.from({ length: 7 }, () => ({
-  id: faker.datatype.uuid(),
-  task: faker.lorem.sentence(),
-  completed: false,
-}));
+import db from '../../db.json';
+
+let list = faker.random.arrayElements(
+  db.todos.filter(({ completed }) => !completed),
+  7,
+);
 let todo = faker.random.arrayElement(list);
 
 test.describe('update a todo', () => {

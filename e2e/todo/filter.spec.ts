@@ -11,13 +11,14 @@ const completedCount = todos.length - activeCount;
 
 test.describe('Filter todos by', () => {
   test.beforeEach(async ({ page }) => {
-    await page.route('**/api/todos**', (route) =>
+    await page.route('**/api/todos?**', (route) =>
       route.fulfill({
         status: 200,
         contentType: 'application/json',
         body: JSON.stringify(todos),
       }),
     );
+
     await page.route('**/api/todos/**', (route) =>
       route.fulfill({
         status: 200,
@@ -25,6 +26,7 @@ test.describe('Filter todos by', () => {
         body: '{}',
       }),
     );
+
     await page.goto('/', { waitUntil: 'networkidle' });
   });
 

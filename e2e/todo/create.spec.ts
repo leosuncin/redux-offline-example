@@ -1,25 +1,21 @@
 import { faker } from '@faker-js/faker';
 import { expect, test } from '@playwright/test';
 
-import type { Todo } from '../../src/features/todo/todoSlice';
-
-const todos: Todo[] = Array.from({ length: 9 }, () => ({
-  id: faker.datatype.uuid(),
-  task: faker.lorem.sentence(),
-  completed: faker.datatype.boolean(),
-}));
+import db from '../../db.json';
 
 test.describe('create a todo', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
+    await page.route('**/api/todos?**', (route) => {
+      const url = new URL(route.request().url());
+      const page = +url.searchParams.get('_page');
+      const limit = 10;
 
-    await page.route('**/api/todos?**', (route) =>
-      route.fulfill({
+      return route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: JSON.stringify(todos),
-      }),
-    );
+        body: JSON.stringify(db.todos.slice(limit * (page - 1), limit * page)),
+      });
+    });
 
     await page.route('**/api/todos', (route) =>
       route.fulfill({
@@ -28,6 +24,8 @@ test.describe('create a todo', () => {
         body: route.request().postData(),
       }),
     );
+
+    await page.goto('/');
   });
 
   test('submit the form', async ({ page }) => {
