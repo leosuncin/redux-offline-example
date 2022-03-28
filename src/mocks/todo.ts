@@ -48,20 +48,21 @@ export const createTodoHandler = rest.post<Todo, {}, Todo>(
   },
 );
 
-export const updateTodoHandler = rest.put<Todo, { id: string }, Partial<Todo>>(
-  '/api/todos/:id',
-  (request, response, context) => {
-    const { id } = request.params;
-    const todo = todoSelectors.selectById(state, request.params.id)!;
+export const updateTodoHandler = rest.patch<
+  Todo,
+  { id: string },
+  Partial<Todo>
+>('/api/todos/:id', (request, response, context) => {
+  const { id } = request.params;
+  const todo = todoSelectors.selectById(state, request.params.id)!;
 
-    state = todoAdapter.updateOne(state, {
-      id,
-      changes: request.body,
-    });
+  state = todoAdapter.updateOne(state, {
+    id,
+    changes: request.body,
+  });
 
-    return response(context.delay(), context.json(todo));
-  },
-);
+  return response(context.delay(), context.json(todo));
+});
 
 export const removeTodoHandler = rest.delete<undefined, { id: string }>(
   '/api/todos/:id',

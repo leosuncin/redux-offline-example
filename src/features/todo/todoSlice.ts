@@ -3,6 +3,8 @@ import {
   createEntityAdapter,
   createSelector,
   createSlice,
+  PayloadAction,
+  Update,
 } from '@reduxjs/toolkit';
 
 import type { AppThunk, AsyncThunkConfig, RootState } from '../../app/store';
@@ -33,11 +35,6 @@ export const fetchAll = createAsyncThunk<
   number | undefined,
   AsyncThunkConfig<{ fulfilledMeta: { totalCount: number } }>
 >('todo/fetchAll', todoApi.getAll);
-
-export const updateTodo = createAsyncThunk(
-  'todo/updateTodo',
-  todoApi.updateOne,
-);
 
 export const removeTodo = createAsyncThunk(
   'todo/removeTodo',
@@ -77,7 +74,32 @@ export const todoSlice = createSlice({
       },
       reducer: todoAdapter.addOne,
     },
-    updateTodo: todoAdapter.updateOne,
+    updateTodo: {
+      prepare(payload: Update<Todo>) {
+        return {
+          payload,
+          meta: {
+            offline: {
+              effect: {
+                url: `/api/todos/${payload.id}`,
+                method: 'PATCH',
+                json: payload.changes,
+              },
+              commit: {
+                type: 'todo/updateTodo',
+              },
+            },
+          },
+        };
+      },
+      reducer(state, action: PayloadAction<Update<Todo> | Todo>) {
+        if ('changes' in action.payload) {
+          todoAdapter.updateOne(state, action.payload);
+        } else {
+          todoAdapter.upsertOne(state, action.payload);
+        }
+      },
+    },
     removeTodo: todoAdapter.removeOne,
     clearCompleted(state) {
       const completedKeys = todoAdapter
@@ -91,19 +113,13 @@ export const todoSlice = createSlice({
   extraReducers(builder) {
     builder.addCase(fetchAll.fulfilled, todoAdapter.setAll);
 
-    builder
-      .addCase(updateTodo.pending, (state, action) => {
-        todoAdapter.updateOne(state, action.meta.arg);
-      })
-      .addCase(updateTodo.fulfilled, todoAdapter.setOne);
-
     builder.addCase(removeTodo.pending, (state, action) => {
       todoAdapter.removeOne(state, action.meta.arg);
     });
   },
 });
 
-export const { addTodo } = todoSlice.actions;
+export const { addTodo, updateTodo } = todoSlice.actions;
 
 const todoSelectors = todoAdapter.getSelectors(
   (state: RootState) => state.todo,
