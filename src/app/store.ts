@@ -21,7 +21,7 @@ import todoSlice, { fetchAll, removeTodo } from '../features/todo/todoSlice';
 const listener = createListenerMiddleware<RootState>();
 
 listener.startListening({
-  actionCreator: removeTodo.fulfilled,
+  actionCreator: removeTodo,
   effect(_, { dispatch, getState }) {
     const currentPage = selectCurrentPage(getState());
     const pages = selectPages(getState());

@@ -18,7 +18,7 @@ const paginateSlice = createSlice({
       state.currentPage = action.meta.arg ?? 1;
     });
 
-    builder.addCase(removeTodo.fulfilled, (state) => {
+    builder.addCase(removeTodo, (state) => {
       state.total -= 1;
     });
   },

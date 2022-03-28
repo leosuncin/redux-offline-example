@@ -36,11 +36,6 @@ export const fetchAll = createAsyncThunk<
   AsyncThunkConfig<{ fulfilledMeta: { totalCount: number } }>
 >('todo/fetchAll', todoApi.getAll);
 
-export const removeTodo = createAsyncThunk(
-  'todo/removeTodo',
-  todoApi.removeOne,
-);
-
 export const todoSlice = createSlice({
   name: 'todo',
   initialState,
@@ -100,26 +95,32 @@ export const todoSlice = createSlice({
         }
       },
     },
-    removeTodo: todoAdapter.removeOne,
-    clearCompleted(state) {
-      const completedKeys = todoAdapter
-        .getSelectors()
-        .selectAll(state)
-        .filter(({ completed }) => completed)
-        .map(({ id }) => id);
-      todoAdapter.removeMany(state, completedKeys);
+    removeTodo: {
+      prepare(id: Todo['id']) {
+        return {
+          payload: id,
+          meta: {
+            offline: {
+              effect: {
+                url: `/api/todos/${id}`,
+                method: 'DELETE',
+              },
+            },
+            rollback: {
+              type: 'todo/addTodo',
+            },
+          },
+        };
+      },
+      reducer: todoAdapter.removeOne,
     },
   },
   extraReducers(builder) {
     builder.addCase(fetchAll.fulfilled, todoAdapter.setAll);
-
-    builder.addCase(removeTodo.pending, (state, action) => {
-      todoAdapter.removeOne(state, action.meta.arg);
-    });
   },
 });
 
-export const { addTodo, updateTodo } = todoSlice.actions;
+export const { addTodo, removeTodo, updateTodo } = todoSlice.actions;
 
 const todoSelectors = todoAdapter.getSelectors(
   (state: RootState) => state.todo,
