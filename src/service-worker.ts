@@ -76,7 +76,7 @@ registerRoute(
 );
 registerRoute(
   /\/api\/todos/,
-  new NetworkOnly({
+  new StaleWhileRevalidate({
     plugins: [bgSyncPlugin],
   }),
   'GET',
