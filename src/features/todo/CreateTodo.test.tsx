@@ -2,12 +2,11 @@ import { render, screen } from '@testing-library/react';
 import user from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
-import { getDefaultMiddleware } from '@reduxjs/toolkit'
 
 import CreateTodo from './CreateTodo';
 
 describe('<CreateTodo />', () => {
-  const mockStore = configureStore(getDefaultMiddleware());
+  const mockStore = configureStore();
 
   it('should render', () => {
     const store = mockStore();
@@ -36,6 +35,6 @@ describe('<CreateTodo />', () => {
 
     expect(screen.getByLabelText('Task')).toHaveProperty('value', '');
     expect(store.getActions()).toHaveLength(1);
-    expect(store.getActions()[0]).toHaveProperty('type', 'todo/addTodo/pending');
+    expect(store.getActions()[0]).toHaveProperty('type', 'todo/addTodo');
   });
 });

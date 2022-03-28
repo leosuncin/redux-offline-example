@@ -12,7 +12,7 @@ import * as todoApi from './todoApi';
 // HACK Remove after upgrade to Typescript 4.6
 declare global {
   interface Crypto {
-    randomUUID: () => string;
+    randomUUID(): string;
   }
 }
 
@@ -34,12 +34,6 @@ export const fetchAll = createAsyncThunk<
   AsyncThunkConfig<{ fulfilledMeta: { totalCount: number } }>
 >('todo/fetchAll', todoApi.getAll);
 
-export const addTodo = createAsyncThunk('todo/addTodo', todoApi.createOne, {
-  idGenerator() {
-    return crypto.randomUUID();
-  },
-});
-
 export const updateTodo = createAsyncThunk(
   'todo/updateTodo',
   todoApi.updateOne,
@@ -54,6 +48,37 @@ export const todoSlice = createSlice({
   name: 'todo',
   initialState,
   reducers: {
+    addTodo: {
+      prepare(task: string) {
+        const payload = {
+          id: crypto.randomUUID(),
+          task,
+          completed: false,
+        };
+        return {
+          payload,
+          meta: {
+            offline: {
+              effect: {
+                url: '/api/todos',
+                method: 'POST',
+                json: payload,
+              },
+              rollback: {
+                type: 'todo/removeTodo',
+                payload: payload.id,
+                meta: {
+                  arg: payload.id,
+                },
+              },
+            },
+          },
+        };
+      },
+      reducer: todoAdapter.addOne,
+    },
+    updateTodo: todoAdapter.updateOne,
+    removeTodo: todoAdapter.removeOne,
     clearCompleted(state) {
       const completedKeys = todoAdapter
         .getSelectors()
@@ -67,16 +92,6 @@ export const todoSlice = createSlice({
     builder.addCase(fetchAll.fulfilled, todoAdapter.setAll);
 
     builder
-      .addCase(addTodo.pending, (state, action) => {
-        todoAdapter.addOne(state, {
-          id: action.meta.requestId,
-          task: action.meta.arg,
-          completed: false,
-        });
-      })
-      .addCase(addTodo.fulfilled, todoAdapter.setOne);
-
-    builder
       .addCase(updateTodo.pending, (state, action) => {
         todoAdapter.updateOne(state, action.meta.arg);
       })
@@ -87,6 +102,8 @@ export const todoSlice = createSlice({
     });
   },
 });
+
+export const { addTodo } = todoSlice.actions;
 
 const todoSelectors = todoAdapter.getSelectors(
   (state: RootState) => state.todo,
@@ -123,4 +140,5 @@ export const clearCompleted =
         .filter(({ completed }) => completed)
         .map(({ id }) => dispatch(removeTodo(id))),
     );
+
 export default todoSlice;
