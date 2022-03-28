@@ -39,14 +39,13 @@ export const updateOne: AsyncThunkPayloadCreator<
   Todo,
   Update<Todo>,
   AsyncThunkConfig
-> = async ({ changes, id }, { getState }) => {
-  const todo = getState().todo.entities[id]!;
+> = async ({ changes, id }) => {
   const response = await fetch(`/api/todos/${id}`, {
-    method: 'PUT',
+    method: 'PATCH',
     headers: {
       'content-type': 'application/json',
     },
-    body: JSON.stringify({ ...todo, ...changes, id: undefined }),
+    body: JSON.stringify(changes),
   });
 
   return response.json();
