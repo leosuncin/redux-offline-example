@@ -71,19 +71,19 @@ describe('<App />', () => {
     await waitForElementToBeRemoved(screen.queryByRole('alert'));
 
     expect(
-      within(screen.getAllByRole('listitem')[1]).getByRole('checkbox', {
+      within(screen.getAllByRole('listitem')[2]).getByRole('checkbox', {
         name: 'Mark done',
       }),
     ).not.toBeChecked();
 
     user.click(
-      within(screen.getAllByRole('listitem')[1]).getByRole('checkbox', {
+      within(screen.getAllByRole('listitem')[2]).getByRole('checkbox', {
         name: 'Mark done',
       }),
     );
 
     expect(
-      within(screen.getAllByRole('listitem')[1]).getByRole('checkbox', {
+      within(screen.getAllByRole('listitem')[2]).getByRole('checkbox', {
         name: 'Mark pending',
       }),
     ).toBeChecked();

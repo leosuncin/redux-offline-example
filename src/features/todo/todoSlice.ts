@@ -12,7 +12,7 @@ import * as todoApi from './todoApi';
 // HACK Remove after upgrade to Typescript 4.6
 declare global {
   interface Crypto {
-    randomUUID: () => string;
+    randomUUID(): string;
   }
 }
 
@@ -20,9 +20,13 @@ export type Todo = {
   id: string;
   task: string;
   completed: boolean;
+  createdAt: number;
+  updatedAt: number;
 };
 
-export const todoAdapter = createEntityAdapter<Todo>();
+export const todoAdapter = createEntityAdapter<Todo>({
+  sortComparer: (a, b) => (a.createdAt < b.createdAt ? 1 : -1),
+});
 
 const initialState = todoAdapter.getInitialState();
 
@@ -68,10 +72,14 @@ export const todoSlice = createSlice({
 
     builder
       .addCase(addTodo.pending, (state, action) => {
+        const now = Date.now();
+
         todoAdapter.addOne(state, {
           id: action.meta.requestId,
           task: action.meta.arg,
           completed: false,
+          createdAt: now,
+          updatedAt: now,
         });
       })
       .addCase(addTodo.fulfilled, todoAdapter.setOne);

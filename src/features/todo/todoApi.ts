@@ -8,7 +8,14 @@ export const getAll: AsyncThunkPayloadCreator<
   number | undefined,
   AsyncThunkConfig<{ fulfilledMeta: { totalCount: number } }>
 > = async (page = 1, { signal, fulfillWithValue }) => {
-  const response = await fetch(`/api/todos?_page=${page}`, { signal });
+  const queryParams = new URLSearchParams({
+    _page: page.toString(),
+    _sort: 'createdAt',
+    _order: 'desc',
+  });
+  const response = await fetch(`/api/todos?${queryParams.toString()}`, {
+    signal,
+  });
   const totalCount = +response.headers.get('x-total-count')!;
   const json = (await response.json()) as Todo[];
 

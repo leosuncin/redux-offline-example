@@ -10,6 +10,7 @@ import todoSlice, {
 describe('Todo slice', () => {
   it('should add one todo', () => {
     const dispatch = jest.fn();
+    const mockNow = jest.spyOn(Date, 'now').mockImplementation(() => 0);
 
     addTodo('just do it')(dispatch, () => ({}), undefined);
 
@@ -31,7 +32,11 @@ describe('Todo slice', () => {
       id: expect.any(String),
       task: 'just do it',
       completed: false,
+      createdAt: 0,
+      updatedAt: 0,
     });
+
+    mockNow.mockRestore();
   });
 
   it('should update one todo', () => {
@@ -42,6 +47,8 @@ describe('Todo slice', () => {
           id: 'a',
           task: 'make a sandwich',
           completed: false,
+          createdAt: 0,
+          updatedAt: 0,
         },
       },
     };
@@ -73,11 +80,15 @@ describe('Todo slice', () => {
           id: 'a',
           task: 'make a sandwich',
           completed: false,
+          createdAt: 0,
+          updatedAt: 0,
         },
         b: {
           id: 'b',
           task: 'make a salad',
           completed: true,
+          createdAt: 0,
+          updatedAt: 0,
         },
       },
     };
