@@ -97,7 +97,8 @@ const config: PlaywrightTestConfig = {
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: 'npx json-server -r routes.json -s build db.json',
+    command:
+      'npx json-server -r routes.json -m timestampMiddleware.cjs -s build db.json',
     reuseExistingServer: true,
     port: 3000,
   },

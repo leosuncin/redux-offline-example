@@ -40,7 +40,7 @@
   "scripts": {
     "start": "run-p start:*",
     "start:client": "react-scripts start",
-    "start:server": "json-server -w db.json -r routes.json -p 4000 -s build",
+    "start:server": "json-server -w db.json -r routes.json -p 4000 -s build -m timestampMiddleware.cjs",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "test:e2e": "playwright test",
