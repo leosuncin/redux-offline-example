@@ -13,7 +13,11 @@ import { clientsClaim } from 'workbox-core';
 import { ExpirationPlugin } from 'workbox-expiration';
 import { precacheAndRoute, createHandlerBoundToURL } from 'workbox-precaching';
 import { registerRoute } from 'workbox-routing';
-import { NetworkOnly, StaleWhileRevalidate } from 'workbox-strategies';
+import {
+  NetworkFirst,
+  NetworkOnly,
+  StaleWhileRevalidate,
+} from 'workbox-strategies';
 
 declare const self: ServiceWorkerGlobalScope;
 
@@ -76,7 +80,7 @@ registerRoute(
 );
 registerRoute(
   /\/api\/todos/,
-  new StaleWhileRevalidate({
+  new NetworkFirst({
     plugins: [bgSyncPlugin],
   }),
   'GET',
@@ -94,6 +98,13 @@ registerRoute(
     plugins: [bgSyncPlugin],
   }),
   'PUT',
+);
+registerRoute(
+  /\/api\/todos\/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/,
+  new NetworkOnly({
+    plugins: [bgSyncPlugin],
+  }),
+  'PATCH',
 );
 registerRoute(
   /\/api\/todos\/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/,
