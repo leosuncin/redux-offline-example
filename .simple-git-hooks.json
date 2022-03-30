@@ -1,0 +1,5 @@
+{
+  "commit-msg": "npx commitlint -e",
+  "pre-commit": "npx nano-staged",
+  "pre-push": "npx tsc --noEmit --noErrorTruncation --pretty false --incremental false && npx eslint ."
+}
