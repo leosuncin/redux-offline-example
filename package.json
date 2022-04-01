@@ -5,7 +5,6 @@
   "scripts": {
     "build": "react-scripts build",
     "postbuild": "purgecss --css build/static/css/*.css --content build/index.html build/static/js/*.js --output build/static/css",
-    "dev": "vercel dev",
     "eject": "react-scripts eject",
     "prepare": "simple-git-hooks",
     "start": "run-p start:*",
