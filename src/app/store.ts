@@ -13,6 +13,7 @@ import paginateSlice, {
   selectCurrentPage,
   selectPages,
 } from '../features/paginate/paginateSlice';
+import swSlice from '../features/sw/swSlice';
 import todoSlice, { fetchAll, removeTodo } from '../features/todo/todoSlice';
 
 const listener = createListenerMiddleware<RootState>();
@@ -33,12 +34,24 @@ listener.startListening({
   },
 });
 
+listener.startListening({
+  predicate(_action, currentState) {
+    return currentState.sw!.hasPendingUpdate && currentState.sw!.updateAccepted;
+  },
+  effect() {
+    navigator.serviceWorker.controller?.postMessage({ type: 'SKIP_WAITING' });
+
+    window.location.reload();
+  },
+});
+
 export function makeStore(preloadedState?: Partial<PreloadedState<RootState>>) {
   return configureStore({
     reducer: {
       [todoSlice.name]: todoSlice.reducer,
       [filterSlice.name]: filterSlice.reducer,
       [paginateSlice.name]: paginateSlice.reducer,
+      [swSlice.name]: swSlice.reducer,
     },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({
@@ -57,6 +70,7 @@ export type RootState = {
   [todoSlice.name]: ReturnType<typeof todoSlice.reducer>;
   [filterSlice.name]: ReturnType<typeof filterSlice.reducer>;
   [paginateSlice.name]: ReturnType<typeof paginateSlice.reducer>;
+  [swSlice.name]?: ReturnType<typeof swSlice.reducer>;
 };
 export type AppThunk<ReturnType = void> = ThunkAction<
   ReturnType,
