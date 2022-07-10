@@ -7,7 +7,7 @@ test.describe('create a todo', () => {
   test.beforeEach(async ({ page }) => {
     await page.route('**/api/todos?**', (route) => {
       const url = new URL(route.request().url());
-      const page = +url.searchParams.get('_page');
+      const page = +url.searchParams.get('_page')!;
       const limit = 10;
 
       return route.fulfill({
@@ -21,7 +21,7 @@ test.describe('create a todo', () => {
       route.fulfill({
         status: 201,
         contentType: 'application/json',
-        body: route.request().postData(),
+        body: route.request().postData()!,
       }),
     );
 

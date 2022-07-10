@@ -3,11 +3,11 @@ import { expect, test } from '@playwright/test';
 
 import db from '../../db.json';
 
-let list = faker.random.arrayElements(
+let list = faker.helpers.arrayElements(
   db.todos.filter(({ completed }) => !completed),
   7,
 );
-let todo = faker.random.arrayElement(list);
+let todo = faker.helpers.arrayElement(list);
 
 test.describe('update a todo', () => {
   test.beforeEach(async ({ page }) => {

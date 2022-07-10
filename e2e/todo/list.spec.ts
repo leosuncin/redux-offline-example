@@ -8,7 +8,7 @@ test.describe('list and paginate', () => {
 
   test.beforeEach(async ({ page }) => {
     await page.route('**/api/todos?**', async (route) => {
-      const todos = faker.random.arrayElements(db.todos, 10);
+      const todos = faker.helpers.arrayElements(db.todos, 10);
       countTotal = faker.datatype.number({ min: 42, max: 104 });
 
       return route.fulfill({
