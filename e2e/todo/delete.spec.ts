@@ -11,7 +11,7 @@ test.describe('delete a todo', () => {
   test.beforeEach(async ({ page }) => {
     await page.route(byPageRoute, (route) => {
       const url = new URL(route.request().url());
-      const page = Number.parseInt(url.searchParams.get('_page')) || 1;
+      const page = Number.parseInt(url.searchParams.get('_page')!) || 1;
       const limit = 10;
       const slice = db.todos.slice(limit * (page - 1), limit * page);
 
@@ -27,7 +27,7 @@ test.describe('delete a todo', () => {
 
     await page.route(byIdRoute, (route) => {
       const result = byIdRoute.exec(route.request().url());
-      const { id } = result.groups;
+      const { id } = result!.groups!;
 
       db.todos = db.todos.filter((todo) => todo.id !== id);
 
