@@ -19,9 +19,19 @@ jobs:
       - name: Approve a PR
         run: gh pr review --approve "$PR_URL"
         env:
-          PR_URL: ${{github.event.pull_request.html_url}}
+          PR_URL: ${{ github.event.pull_request.html_url }}
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - name: Add a label for all dependencies
         run: gh pr edit "$PR_URL" --add-label "automerge"
         env:
-          PR_URL: ${{github.event.pull_request.html_url}}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+
+  lockfile_changes:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: NPM Lockfile Changes
+        uses: codepunkt/npm-lockfile-changes@main
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
