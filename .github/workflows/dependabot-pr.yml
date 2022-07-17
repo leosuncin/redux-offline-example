@@ -20,11 +20,12 @@ jobs:
         run: gh pr review --approve "$PR_URL"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Add a label for all dependencies
         run: gh pr edit "$PR_URL" --add-label "automerge"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   lockfile_changes:
     runs-on: ubuntu-latest
