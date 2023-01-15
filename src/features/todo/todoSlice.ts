@@ -129,6 +129,7 @@ export const clearCompleted =
       todoSelectors
         .selectAll(getState())
         .filter(({ completed }) => completed)
+        // @ts-expect-error it's an async thunk
         .map(({ id }) => dispatch(removeTodo(id))),
     );
 export default todoSlice;

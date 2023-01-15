@@ -1,57 +1,57 @@
-import { getDefaultMiddleware } from '@reduxjs/toolkit';
 import { render, screen, within } from '@testing-library/react';
 import user from '@testing-library/user-event';
+import { rest } from 'msw';
+import { setupServer } from 'msw/node';
 import { Provider } from 'react-redux';
-import configureStore, { MockGetState } from 'redux-mock-store';
 
-import type { RootState } from '../../app/store';
+import { makeStore, RootState } from '../../app/store';
 import ListTodo from './ListTodo';
-import todoSlice from './todoSlice';
+import todoSlice, { todoAdapter } from './todoSlice';
+
+const emptyState: RootState = {
+  todo: todoSlice.getInitialState(),
+  filter: 'all',
+  paginate: { currentPage: 1, total: 0 },
+};
+const listState: RootState = {
+  todo: todoAdapter.setAll(todoSlice.getInitialState(), [
+    {
+      id: 'a',
+      task: 'make a sandwich',
+      completed: false,
+      createdAt: 1,
+      updatedAt: 1,
+    },
+    {
+      id: 'b',
+      task: 'make a salad',
+      completed: true,
+      createdAt: 0,
+      updatedAt: 0,
+    },
+  ]),
+  filter: 'all',
+  paginate: { currentPage: 1, total: 0 },
+};
+const server = setupServer(
+  rest.all('*', (_, response, { json }) => response(json({}))),
+);
 
 describe('<ListTodo />', () => {
-  const mockStore = configureStore<RootState>(getDefaultMiddleware());
-  const emptyState: RootState = {
-    todo: { ids: [], entities: {} },
-    filter: 'all',
-    paginate: { currentPage: 1, total: 0 },
-  };
-  const listState: RootState = {
-    todo: {
-      ids: ['a', 'b'],
-      entities: {
-        a: {
-          id: 'a',
-          task: 'make a sandwich',
-          completed: false,
-          createdAt: 1,
-          updatedAt: 1,
-        },
-        b: {
-          id: 'b',
-          task: 'make a salad',
-          completed: true,
-          createdAt: 0,
-          updatedAt: 0,
-        },
-      },
-    },
-    filter: 'all',
-    paginate: { currentPage: 1, total: 0 },
-  };
-  const getState: MockGetState<RootState> = (actions) => {
-    if (actions.length === 0) return listState;
+  beforeAll(() => {
+    server.listen({ onUnhandledRequest: 'warn' });
+  });
 
-    return {
-      ...listState,
-      [todoSlice.name]: actions.reduce(
-        (state, action) => todoSlice.reducer(state, action),
-        listState.todo,
-      ),
-    };
-  };
+  beforeEach(() => {
+    server.resetHandlers();
+  });
+
+  afterAll(() => {
+    server.close();
+  });
 
   it('should show an alert with an empty list', () => {
-    const store = mockStore(emptyState);
+    const store = makeStore(emptyState);
 
     render(
       <Provider store={store}>
@@ -65,7 +65,7 @@ describe('<ListTodo />', () => {
   });
 
   it('should list all of the todo', () => {
-    const store = mockStore(listState);
+    const store = makeStore(listState);
 
     render(
       <Provider store={store}>
@@ -79,8 +79,8 @@ describe('<ListTodo />', () => {
     expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
   });
 
-  it('should toggle a todo', () => {
-    const store = mockStore(getState);
+  it('should toggle a todo', async () => {
+    const store = makeStore(listState);
 
     render(
       <Provider store={store}>
@@ -92,16 +92,17 @@ describe('<ListTodo />', () => {
       within(screen.getByTestId('todo-a')).getByRole('checkbox'),
     ).not.toBeChecked();
 
-    user.click(within(screen.getByTestId('todo-a')).getByRole('checkbox'));
+    await user.click(
+      within(screen.getByTestId('todo-a')).getByRole('checkbox'),
+    );
 
-    expect(store.getActions()).toHaveLength(1);
     expect(
       within(screen.getByTestId('todo-a')).getByRole('checkbox'),
     ).toBeChecked();
   });
 
-  it('should edit a todo', () => {
-    const store = mockStore(getState);
+  it('should edit a todo', async () => {
+    const store = makeStore(listState);
 
     render(
       <Provider store={store}>
@@ -111,7 +112,7 @@ describe('<ListTodo />', () => {
 
     expect(screen.getByTestId('todo-a')).toBeInTheDocument();
 
-    user.click(
+    await user.click(
       within(screen.getByTestId('todo-a')).getByRole('button', {
         name: 'Edit',
       }),
@@ -121,18 +122,18 @@ describe('<ListTodo />', () => {
       listState.todo.entities['a']!.task,
     );
 
-    user.type(
+    await user.clear(screen.getByLabelText('Change task'));
+    await user.type(
       screen.getByLabelText('Change task'),
-      '{selectall}Eat healthy food{enter}',
+      'Eat healthy food{enter}',
     );
 
-    expect(store.getActions()).toHaveLength(1);
     expect(screen.getByText('Eat healthy food')).toBeInTheDocument();
     expect(screen.queryByLabelText('Change task')).not.toBeInTheDocument();
   });
 
-  it('should cancel the editing of a todo', () => {
-    const store = mockStore(getState);
+  it('should cancel the editing of a todo', async () => {
+    const store = makeStore(listState);
 
     render(
       <Provider store={store}>
@@ -142,7 +143,7 @@ describe('<ListTodo />', () => {
 
     expect(screen.getByTestId('todo-a')).toBeInTheDocument();
 
-    user.click(
+    await user.click(
       within(screen.getByTestId('todo-a')).getByRole('button', {
         name: 'Edit',
       }),
@@ -152,19 +153,16 @@ describe('<ListTodo />', () => {
       listState.todo.entities['a']!.task,
     );
 
-    user.type(
-      screen.getByLabelText('Change task'),
-      '{selectall}Eat healthy food',
-    );
-    user.click(screen.getByRole('button', { name: 'Cancel' }));
+    await user.clear(screen.getByLabelText('Change task'));
+    await user.type(screen.getByLabelText('Change task'), 'Eat healthy food');
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
 
-    expect(store.getActions()).toHaveLength(0);
     expect(
       screen.getByText(listState.todo.entities['a']!.task),
     ).toBeInTheDocument();
     expect(screen.queryByLabelText('Task')).not.toBeInTheDocument();
 
-    user.click(
+    await user.click(
       within(screen.getByTestId('todo-a')).getByRole('button', {
         name: 'Edit',
       }),
@@ -175,8 +173,8 @@ describe('<ListTodo />', () => {
     );
   });
 
-  it('should remove a todo', () => {
-    const store = mockStore(getState);
+  it('should remove a todo', async () => {
+    const store = makeStore(listState);
 
     render(
       <Provider store={store}>
@@ -186,13 +184,12 @@ describe('<ListTodo />', () => {
 
     expect(screen.getByTestId('todo-b')).toBeInTheDocument();
 
-    user.click(
+    await user.click(
       within(screen.getByTestId('todo-b')).getByRole('button', {
         name: 'Remove',
       }),
     );
 
-    expect(store.getActions()).toHaveLength(1);
     expect(screen.queryByTestId('todo-b')).not.toBeInTheDocument();
   });
 });

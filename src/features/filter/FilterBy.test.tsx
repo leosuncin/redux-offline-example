@@ -23,7 +23,7 @@ describe('<FilterBy />', () => {
     };
   };
 
-  it('should change the filter', () => {
+  it('should change the filter', async () => {
     const store = mockStore(getState);
 
     render(
@@ -34,12 +34,12 @@ describe('<FilterBy />', () => {
 
     expect(screen.getByRole('radio', { name: 'All' })).toBeChecked();
 
-    user.click(screen.getByLabelText('Active'));
+    await user.click(screen.getByLabelText('Active'));
 
     expect(store.getActions().at(-1)).toHaveProperty('payload', 'active');
     expect(screen.getByRole('radio', { name: 'Active' })).toBeChecked();
 
-    user.click(screen.getByLabelText('Completed'));
+    await user.click(screen.getByLabelText('Completed'));
 
     expect(store.getActions().at(-1)).toHaveProperty('payload', 'completed');
     expect(screen.getByRole('radio', { name: 'Completed' })).toBeChecked();

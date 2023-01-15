@@ -53,8 +53,8 @@ describe('<App />', () => {
 
     await waitForElementToBeRemoved(screen.queryByRole('alert'));
 
-    user.type(screen.getByLabelText('Task'), 'Buy milk');
-    user.click(screen.getByRole('button', { name: 'Add task' }));
+    await user.type(screen.getByLabelText('Task'), 'Buy milk');
+    await user.click(screen.getByRole('button', { name: 'Add task' }));
 
     expect(screen.getByText('Buy milk')).toBeInTheDocument();
   });
@@ -76,7 +76,7 @@ describe('<App />', () => {
       }),
     ).not.toBeChecked();
 
-    user.click(
+    await user.click(
       within(screen.getAllByRole('listitem')[2]).getByRole('checkbox', {
         name: 'Mark done',
       }),
@@ -100,15 +100,16 @@ describe('<App />', () => {
 
     await waitForElementToBeRemoved(screen.queryByRole('alert'));
 
-    user.click(
+    await user.click(
       within(screen.getAllByRole('listitem')[0]).getByRole('button', {
         name: 'Edit',
       }),
     );
 
-    user.type(
+    await user.clear(screen.getByLabelText('Change task'));
+    await user.type(
       screen.getByLabelText('Change task'),
-      '{selectall}Buy ice cream{enter}',
+      'Buy ice cream{enter}',
     );
 
     expect(screen.getByText('Buy ice cream')).toBeInTheDocument();
@@ -125,13 +126,13 @@ describe('<App />', () => {
 
     await waitForElementToBeRemoved(screen.queryByRole('alert'));
 
-    user.click(screen.getByLabelText('Active'));
+    await user.click(screen.getByLabelText('Active'));
 
     expect(
       within(screen.getByTestId('list-todo')).getAllByRole('listitem'),
     ).toHaveLength(2);
 
-    user.click(screen.getByLabelText('Completed'));
+    await user.click(screen.getByLabelText('Completed'));
 
     expect(
       within(screen.getByTestId('list-todo')).getAllByRole('listitem'),
@@ -149,7 +150,7 @@ describe('<App />', () => {
 
     await waitForElementToBeRemoved(screen.queryByRole('alert'));
 
-    user.click(screen.getByRole('button', { name: 'Clear completed' }));
+    await user.click(screen.getByRole('button', { name: 'Clear completed' }));
 
     expect(screen.queryByTestId('list-todo')).not.toBeInTheDocument();
   });
@@ -167,7 +168,7 @@ describe('<App />', () => {
       screen.findByText('Establish a healthy work-life balance'),
     ).resolves.toBeInTheDocument();
 
-    user.click(
+    await user.click(
       within(
         screen.getByTestId('todo-9ceec59a-f95c-4017-9de7-507e11034414'),
       ).getByRole('button', {
@@ -189,7 +190,7 @@ describe('<App />', () => {
 
     await waitForElementToBeRemoved(screen.queryByRole('alert'));
 
-    user.click(
+    await user.click(
       within(screen.getByRole('navigation')).getByRole('button', { name: '2' }),
     );
 

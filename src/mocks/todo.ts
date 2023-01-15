@@ -48,9 +48,9 @@ export const listTodoHandler = rest.get<Todo[]>(
 
 export const createTodoHandler = rest.post<Todo, {}, Todo>(
   '/api/todos',
-  (request, response, context) => {
+  async (request, response, context) => {
     const createdAt = Date.now();
-    const todo = request.body;
+    const todo = await request.json();
     state = todoAdapter.addOne(state, {
       ...todo,
       createdAt,
@@ -65,13 +65,13 @@ export const updateTodoHandler = rest.patch<
   Todo,
   { id: string },
   Partial<Todo>
->('/api/todos/:id', (request, response, context) => {
+>('/api/todos/:id', async (request, response, context) => {
   const { id } = request.params;
   const todo = todoSelectors.selectById(state, request.params.id)!;
 
   state = todoAdapter.updateOne(state, {
     id,
-    changes: request.body,
+    changes: await request.json(),
   });
 
   return response(context.delay(), context.json(todo));

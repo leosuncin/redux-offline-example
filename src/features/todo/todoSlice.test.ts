@@ -1,3 +1,4 @@
+import { RootState } from '../../app/store';
 import todoSlice, {
   addTodo,
   removeTodo,
@@ -8,11 +9,24 @@ import todoSlice, {
 } from './todoSlice';
 
 describe('Todo slice', () => {
+  const initialRootState = Object.freeze<RootState>({
+    todo: todoSlice.getInitialState(),
+    filter: 'all',
+    paginate: {
+      currentPage: 1,
+      total: 0,
+    },
+    sw: {
+      hasPendingUpdate: false,
+      updateAccepted: false,
+    },
+  });
+
   it('should add one todo', () => {
     const dispatch = jest.fn();
     const mockNow = jest.spyOn(Date, 'now').mockImplementation(() => 0);
 
-    addTodo('just do it')(dispatch, () => ({}), undefined);
+    addTodo('just do it')(dispatch, () => initialRootState, undefined);
 
     expect(dispatch).toHaveBeenCalled();
     const [pendingAction] = dispatch.mock.calls.flat();
@@ -56,7 +70,7 @@ describe('Todo slice', () => {
 
     updateTodo({ id: 'a', changes: { completed: true } })(
       dispatch,
-      () => ({ [todoSlice.name]: initialState }),
+      () => ({ ...initialRootState, [todoSlice.name]: initialState }),
       undefined,
     );
     const [pendingAction] = dispatch.mock.calls.flat();
@@ -94,7 +108,7 @@ describe('Todo slice', () => {
     };
     const dispatch = jest.fn();
 
-    removeTodo('b')(dispatch, () => ({}), undefined);
+    removeTodo('b')(dispatch, () => initialRootState, undefined);
     const [pendingAction] = dispatch.mock.calls.flat();
 
     const nextState = todoSlice.reducer(initialState, pendingAction);
