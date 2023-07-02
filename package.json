@@ -79,7 +79,7 @@
     "prettier": "^2.6.1",
     "simple-git-hooks": "^2.7.0",
     "sort-package-json": "^2.0.0",
-    "vercel": "^30.0.0"
+    "vercel": "^31.0.1"
   },
   "proxy": "http://localhost:4000"
 }
