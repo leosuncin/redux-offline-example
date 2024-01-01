@@ -30,7 +30,7 @@ jobs:
       - name: Run tests
         run: npm test -- --coverage
       - name: Upload code coverage
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: code-coverage
           path: coverage
@@ -50,7 +50,7 @@ jobs:
       - name: Run Playwright tests
         run: npm run test:e2e
       - name: Upload test report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: playwright-report
