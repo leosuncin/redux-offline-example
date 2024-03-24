@@ -71,7 +71,7 @@
     "workbox-streams": "^7.0.0"
   },
   "devDependencies": {
-    "@commitlint/cli": "^18.2.0",
+    "@commitlint/cli": "^19.2.1",
     "@commitlint/config-conventional": "^18.1.0",
     "@playwright/test": "^1.20.0",
     "nano-staged": "^0.8.0",
