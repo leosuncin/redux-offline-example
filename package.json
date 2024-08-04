@@ -34,7 +34,7 @@
   },
   "dependencies": {
     "@faker-js/faker": "^8.0.0",
-    "@reduxjs/toolkit": "^1.9.1",
+    "@reduxjs/toolkit": "^2.2.7",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^14.1.2",
     "@testing-library/user-event": "^14.4.3",
